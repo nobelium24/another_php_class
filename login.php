@@ -25,26 +25,48 @@ if (isset($_POST)) {
     }
 }
 
+// if ($errors['email'] == null && $errors['password'] == null) {
+//     $email = $_POST['email'];
+//     $password = $_POST['password'];
+
+//     $query = "SELECT * FROM users WHERE email = '$email'";
+//     $validate = mysqli_query($connect, $query);
+//     $data = mysqli_fetch_assoc($validate);
+//     print_r($data);
+//     if (!isset($data)) {
+//         $errors['email'] = "Email does not exist";
+//     } else {
+//         $hashedPassword = $data['password'];
+//         if (!password_verify($password, $hashedPassword)) {
+//             $errors['password'] = "Invalid Password";
+//         } else {
+//             $_SESSION['user'] = $data;
+//             header("Location: ./dashboard.php");
+//         }
+//     }
+
+// }
+
 if ($errors['email'] == null && $errors['password'] == null) {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    $query = "SELECT * FROM users WHERE email = '$email'";
-    $validate = mysqli_query($connect, $query);
-    $data = mysqli_fetch_assoc($validate);
-    print_r($data);
-    if (!isset($data)) {
-        $errors['email'] = "Email does not exist";
+    $query = $connect->prepare("SELECT * FROM users WHERE email = ?");
+    $query->bind_param("s", $email);
+    $query->execute();
+    $response = $query->get_result();
+    $data = $response->fetch_assoc();
+    if (!is_array($data)) {
+        echo ("Internal server error");
     } else {
         $hashedPassword = $data['password'];
         if (!password_verify($password, $hashedPassword)) {
-            $errors['password'] = "Invalid Password";
+            echo ("Invalid password");
         } else {
             $_SESSION['user'] = $data;
             header("Location: ./dashboard.php");
         }
     }
-
 }
 ?>
 

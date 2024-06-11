@@ -53,16 +53,28 @@ if (isset($_POST)) {
 
 
         $new_password = password_hash($password, PASSWORD_DEFAULT);
+        
 
 
-        $query = "INSERT INTO users (first_name, last_name, email, password) VALUES ('$first_name', '$last_name', '$email', '$new_password')";
-        $insert = mysqli_query($connect, $query);
-        if ($insert) {
-            echo ("New user created");
+        // $query = "INSERT INTO users (first_name, last_name, email, password) VALUES ('$first_name', '$last_name', '$email', '$new_password')";
+        // $insert = mysqli_query($connect, $query);
+        // if ($insert) {
+        //     echo ("New user created");
+        //     header("Location: ./login.php");
+        // } else {
+        //     print_r(mysqli_error($connect));
+        // }
+
+        $query = $connect->prepare("INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)");
+        $query->bind_param("ssss", $first_name, $last_name, $email, $new_password);
+        $response = $query->execute();
+        if(!$response){
+            echo("An error occurred");
+        }else{
+            echo("Account created");
             header("Location: ./login.php");
-        } else {
-            print_r(mysqli_error($connect));
         }
+        
     } else {
         echo ("Wahala");
     }
